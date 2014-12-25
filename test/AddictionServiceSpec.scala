@@ -1,4 +1,4 @@
-import _root_.Utils.{AddictSlickModule, WithInjectedApplication}
+import Utils.{AddictSlickModule, WithInjectedApplication}
 import com.google.inject.Inject
 import com.mohiva.play.silhouette.api.LoginInfo
 import models.daos.{UserDAO, BlogDAO, AddictionDAO}

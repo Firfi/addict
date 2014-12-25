@@ -1,4 +1,4 @@
-import _root_.Utils.{AddictSlickModule, WithInjectedApplication}
+import Utils.{AddictSlickModule, WithInjectedApplication}
 import com.google.inject.{Guice, Inject}
 import com.mohiva.play.silhouette.api.LoginInfo
 import com.mohiva.play.silhouette.impl.authenticators.JWTAuthenticator

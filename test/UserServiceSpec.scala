@@ -1,4 +1,4 @@
-import _root_.Utils.{AddictSlickModule, WithInjectedApplication}
+import Utils.{AddictSlickModule, WithInjectedApplication}
 import akka.util.Timeout
 import com.google.inject.{Inject}
 import com.mohiva.play.silhouette.api.LoginInfo

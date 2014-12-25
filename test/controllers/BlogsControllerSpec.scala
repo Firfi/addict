@@ -1,4 +1,4 @@
-import _root_.Utils.{SilhouetteTesting, AddictSlickModule, WithInjectedApplication}
+import Utils.{SilhouetteTesting, AddictSlickModule, WithInjectedApplication}
 import com.google.inject.Inject
 import controllers.BlogsController
 import models.daos.AddictionDAO
@@ -8,7 +8,10 @@ import net.codingwell.scalaguice.ScalaModule
 import org.specs2.mock.Mockito
 import play.api.test.{FakeRequest, WithApplication, PlaySpecification}
 
-class BlogsControllerSpec extends BlogsController @Inject() with PlaySpecification with Mockito with SilhouetteTesting {
+import scala.concurrent.Future
+
+
+class BlogsControllerSpec extends PlaySpecification with Mockito with SilhouetteTesting {
 
 
 
@@ -16,6 +19,7 @@ class BlogsControllerSpec extends BlogsController @Inject() with PlaySpecificati
     "userBlogs" should {
       "return bad status if there's no such user" in new WithApplication with WithMockController {
         val noUser = "noUser"
+        mockUserService.retrieve(noUser) returns Future.successful(None)
         val r = blogsController.userBlogs(noUser)(FakeRequest())
         status(r) must_== BAD_REQUEST
         contentAsString(r) must contain("no user")
