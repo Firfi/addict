@@ -2,19 +2,22 @@ package controllers
 
 import javax.inject.Inject
 import com.mohiva.play.silhouette.impl.authenticators.JWTAuthenticator
-import models.users.User
+import formatters.json.AuthResultFormats
+import models.users.{ProfileResult, AuthResult, User}
 import play.api.Logger
 import play.api.libs.json.{JsError, Json, JsSuccess}
+import play.api.mvc.Results._
 import security.formatters.json.CredentialFormats
 import security.models.Token
+import utils.responses.rest.Bad
 
 import scala.concurrent.Future
-import play.api.mvc.Action
+import play.api.mvc.{Result, RequestHeader, Action}
 import com.mohiva.play.silhouette.api.util.Credentials
 import com.mohiva.play.silhouette.api._
 import com.mohiva.play.silhouette.impl.providers._
 import com.mohiva.play.silhouette.api.services.AuthInfoService
-import com.mohiva.play.silhouette.api.exceptions.AuthenticationException
+import com.mohiva.play.silhouette.api.exceptions.{SilhouetteException, AccessDeniedException, AuthenticationException}
 import models.services.{TokenServiceImpl, UserService}
 import play.api.libs.concurrent.Execution.Implicits._
 
@@ -29,7 +32,10 @@ class CredentialsAuthController @Inject() (
   val authInfoService: AuthInfoService)
   extends Silhouette[User, JWTAuthenticator] {
 
+
   import CredentialFormats._
+  import AuthResultFormats._
+
   /**
    * Authenticates a user against the credentials provider.
    *
@@ -44,17 +50,23 @@ class CredentialsAuthController @Inject() (
         }).flatMap { loginInfo =>
           userService.retrieve(loginInfo).flatMap {
             case Some(user) => env.authenticatorService.create(loginInfo).flatMap { authenticator =>
+              Logger.warn(user.toString)
               env.eventBus.publish(LoginEvent(user, request, request2lang))
               env.authenticatorService.init(authenticator, request).map { requestHeader =>
                 val tok = TokenServiceImpl.tokenFromResponse(requestHeader)
-                Ok(Json.toJson(Token(token = tok, expiresOn = authenticator.expirationDate)))
+                Ok(Json.toJson(AuthResult(profile = ProfileResult(user = user),
+                  token = Token(token = tok, expiresOn = authenticator.expirationDate))))
               }
 
             }
             case None =>
               Future.failed(new AuthenticationException("Couldn't find user"))
           }
-        }.recoverWith(exceptionHandler)
+        }.recoverWith {
+          {
+            case e: SilhouetteException => Future.successful(Unauthorized(Json.toJson(Bad(message = e.getMessage))))
+          }
+        }
       case JsError(e) => Future.successful(BadRequest(Json.obj("message" -> JsError.toFlatJson(e))))
     }
   }

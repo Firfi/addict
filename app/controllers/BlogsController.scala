@@ -21,8 +21,10 @@ import scala.concurrent.Future
 class BlogsController @Inject() (val blogService: BlogService,
                                  val userService: UserService,
                                  val env: Environment[User, JWTAuthenticator])
-  extends Silhouette[User, JWTAuthenticator]
-  with BlogFormats {
+  extends Silhouette[User, JWTAuthenticator] {
+
+  implicit val requestBlogFormats = BlogFormats.requestBlogFormats
+  implicit val blogFormats = BlogFormats.blogFormats
 
   def userBlogs(identifier: String) = UserAwareAction.async { implicit request =>
     userService.retrieve(identifier).flatMap {

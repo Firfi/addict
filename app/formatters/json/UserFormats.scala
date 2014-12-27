@@ -12,9 +12,9 @@ import models.users._
 /**
  * This object contains all format for User class
  */
-object UserFormats {
+trait UserFormats {
 
-  val restFormat = {
+  implicit val restFormat = {
 
     val reader = (
       (__ \ "id").read[String] ~
@@ -38,3 +38,5 @@ object UserFormats {
   }
 
 }
+
+object UserFormats extends UserFormats

@@ -65,7 +65,7 @@ object Global extends GlobalSettings with SecuredSettings {
    * @return The result to send to the client.
    */
   override def onNotAuthorized(request: RequestHeader, lang: Lang): Option[Future[Result]] = {
-    Some(Future.successful(Unauthorized(Json.toJson(Bad(message = "unauthorized")))))
+    Some(Future.successful(Forbidden(Json.toJson(Bad(message = "unauthorized")))))
   }
 
   override def onBadRequest(request: RequestHeader, error: String): Future[Result] = {

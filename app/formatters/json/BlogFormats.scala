@@ -7,3 +7,5 @@ trait BlogFormats extends AddictionFormats {
   implicit val blogFormats = Json.format[Blog]
   implicit val requestBlogFormats = Json.format[BlogRequest]
 }
+
+object BlogFormats extends BlogFormats
